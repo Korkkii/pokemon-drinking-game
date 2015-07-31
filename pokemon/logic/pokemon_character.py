@@ -21,6 +21,9 @@ class PokemonBase:
     def beats(self, enemy_pkmn):
         return self.pkmn_type.beats(enemy_pkmn.pkmn_type)
 
+    def __str__(self):
+        return self.name
+
 
 class FirePokemon(PokemonBase):
     def __init__(self):

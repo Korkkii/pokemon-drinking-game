@@ -39,6 +39,9 @@ class Player:
     def drink(self, drink):
         self.__drinks += drink
 
+    def __str__(self):
+        return "Player {} with pokemon {!s}".format(self.name, self.pokemon)
+
 class Drink:
     def __init__(self, num):
         self.__number = num
@@ -71,7 +74,6 @@ class Players:
 
     @property
     def next(self):
-        head, *tail = self.__players
-        self.__players = tail + head
-        return head
-
+        head, next_player, *tail = self.__players
+        self.__players = [next_player] + tail + [head]
+        return next_player
