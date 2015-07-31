@@ -1,9 +1,15 @@
 class Type:
+    """
+    Base class for all pokemon types
+    """
     def __init__(self, pokemon_type):
         self.pokemon_type = pokemon_type
 
     @property
     def pokemon_type(self):
+        """
+        Type used
+        """
         return self.__pokemon_type
 
     @pokemon_type.setter
@@ -11,6 +17,15 @@ class Type:
         self.__pokemon_type = new_type
 
     def beats(self, other_type):
+        """
+        Type effectiveness mechanics that determine super / not very / normal effectiveness against another type.
+
+        Super effective against
+        Fire -- Grass
+        Water -- Fire
+        Grass -- Water
+        Electric -- Water
+        """
         return type(other_type) in __type_mechanics__[self.pokemon_type]
 
 
