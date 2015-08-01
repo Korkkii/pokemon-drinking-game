@@ -1,5 +1,6 @@
 from pokemon.logic.player import Drink
-from pokemon.logic.throw import Dice
+from pokemon.logic.throw import throw_dice_twice, throw_dice
+
 
 class Fight:
     """
@@ -11,11 +12,11 @@ class Fight:
 
     def start(self):
         if self.player1.beats(self.player2):
-            return self.FightResults(self.player1, self.player2, Dice.throw_twice(), Dice.throw())
+            return self.FightResults(self.player1, self.player2, throw_dice_twice(), throw_dice())
         elif self.player2.beats(self.player1):
-            return self.FightResults(self.player1, self.player2, Dice.throw(), Dice.throw_twice())
+            return self.FightResults(self.player1, self.player2, throw_dice(), throw_dice_twice())
         else:
-            return self.FightResults(self.player1, self.player2, Dice.throw(), Dice.throw())
+            return self.FightResults(self.player1, self.player2, throw_dice(), throw_dice())
 
     def give_drinks(self, p1_throw, p2_throw):
         if p1_throw > p2_throw:
