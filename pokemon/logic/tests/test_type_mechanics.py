@@ -7,7 +7,7 @@ def test_super_effective():
     pokemons = [Charmander(), Squirtle(), Bulbasaur()]
     *firsts, last = pokemons
     pairs = list(zip(pokemons, [last] + firsts))
-    
+
     for pkmn1, pkmn2 in pairs:
         assert_true(pkmn1.beats(pkmn2))
         assert_false(pkmn2.beats(pkmn1))

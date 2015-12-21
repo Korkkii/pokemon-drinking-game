@@ -46,8 +46,8 @@ class FirePokemon(PokemonBase):
     def __init__(self):
         self.pkmn_type = Fire()
         super().__init__()
-    
-    
+
+
 class WaterPokemon(PokemonBase):
     """
     Base class for water pokemon
