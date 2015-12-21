@@ -34,6 +34,3 @@ class GameBoard:
         for opponent in opponents:
             Fight(player, opponent).start()
         destination.perform_action()
-
-
-

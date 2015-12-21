@@ -60,9 +60,9 @@ class Player:
         :param drink Amount of drinks or a Drink class instance
         """
         if type(drink) is int:
-            self.__drinks += Drink(drink)
+            self.__drinks += [Drink(drink)]
         else:
-            self.__drinks += drink
+            self.__drinks += [drink]
 
     def __eq__(self, other):
         return self.name == other.name and self.pokemon == other.pokemon

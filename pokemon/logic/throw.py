@@ -7,13 +7,13 @@ def throw_dice():
 
     :returns the roll
     """
-    return [random.randint(1, 6)]
+    return random.randint(1, 6)
 
 
 def throw_dice_twice():
     """
     Generates two dice throws
 
-    :returns tuple with both rolls
+    :returns list with both rolls
     """
-    return throw_dice() + throw_dice()
+    return [throw_dice(), throw_dice()]
