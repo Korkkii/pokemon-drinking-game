@@ -1,4 +1,5 @@
 from weakref import WeakKeyDictionary
+from enum import Enum
 
 
 class Event:
@@ -35,3 +36,15 @@ class TickEvent(Event):
 class QuitEvent(Event):
     def __init__(self):
         pass
+
+
+class MoveCamera(Event):
+    def __init__(self, direction):
+        self.direction = direction
+
+
+class Direction(Enum):
+    UP = 1
+    RIGHT = 2
+    DOWN = 3
+    LEFT = 4

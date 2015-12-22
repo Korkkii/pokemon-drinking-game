@@ -5,11 +5,6 @@ import pygame
 import sys
 
 if __name__ == '__main__':
-    # PyGame window setup
-    pygame.init()
-    DISPLAYSURF = pygame.display.set_mode((400, 300))
-    pygame.display.set_caption("Hello World")
-
     # while True:
     #     for event in pygame.event.get():
     #         if event.type == QUIT:
@@ -22,10 +17,7 @@ if __name__ == '__main__':
 
     kb_control = KeyboardController(evManager)
     cpu_control = CPUController(evManager)
-    view_control = ViewController()
-    evManager.register_listener(view_control)
-    evManager.register_listener(cpu_control)
-    evManager.register_listener(kb_control)
+    view_control = ViewController(evManager)
 
     # Start game
     cpu_control.run()
