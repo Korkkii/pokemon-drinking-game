@@ -2,7 +2,7 @@ from abc import abstractmethod, ABCMeta
 import pygame
 import sys
 from event import QuitEvent, TickEvent, MoveCamera, Direction
-from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT
+from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT, FULLSCREEN
 import os
 from camera import Camera, FollowFocusCamera
 from pygame.sprite import Group
@@ -24,16 +24,17 @@ class ViewController(EventReceiver):
         self.__evManager.register_listener(self)
 
         pygame.init()
-        self.window = pygame.display.set_mode((400, 300))
+        self.window = pygame.display.set_mode((0, 0), FULLSCREEN)
         pygame.display.set_caption("Pokémon Drinking Game")
         self.background = pygame.Surface(self.window.get_size())
         self.background.fill((0, 0, 0))
         # directory = os.path.dirname(__file__)
         # self.background_image = pygame.image.load(os.path.join(directory, "pokemon_drink.png"))
         self.window.blit(self.background, (0, 0))
-        self.entities = Group(BackgroundEntity(0, 0))
+        bg_ent = BackgroundEntity(0, 0)
+        self.entities = Group(bg_ent)
 
-        self.camera = FollowFocusCamera(300, 200, self.window.get_size())
+        self.camera = FollowFocusCamera(bg_ent.image.get_size(), self.window.get_size())
         self.camera_focus = CameraFocus(0, 0)
 
         pygame.display.flip()
@@ -45,9 +46,10 @@ class ViewController(EventReceiver):
             for entity in self.entities:
                 self.window.blit(entity.image, self.camera.apply(entity))
 
-            pygame.display.flip()
+            pygame.display.update()
         elif isinstance(event, MoveCamera):
             if event.direction == Direction.DOWN:
+
                 self.camera_focus.rect.move_ip(0, 30)
             elif event.direction == Direction.RIGHT:
                 self.camera_focus.rect.move_ip(30, 0)
