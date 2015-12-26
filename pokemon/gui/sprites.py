@@ -20,4 +20,12 @@ class BackgroundEntity(Entity):
 
 class CameraFocus(Entity):
     def __init__(self, x, y):
-        Entity.__init__(self, x, y, 10, 10)
+        Entity.__init__(self, x, y, 0, 0)
+
+
+class FrameEntity(Entity):
+    def __init__(self, x, y):
+        directory = os.path.dirname(__file__)
+        self.image = pygame.image.load(os.path.join(directory, "frame.png"))
+        size = self.image.get_size()
+        Entity.__init__(self, x, y, size[0], size[1])

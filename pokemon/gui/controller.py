@@ -6,7 +6,7 @@ from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT
 import os
 from camera import Camera, FollowFocusCamera
 from pygame.sprite import Group
-from sprites import BackgroundEntity, CameraFocus
+from sprites import BackgroundEntity, CameraFocus, FrameEntity
 
 
 class EventReceiver(metaclass=ABCMeta):
@@ -27,36 +27,39 @@ class ViewController(EventReceiver):
         self.window = pygame.display.set_mode((0, 0), FULLSCREEN)
         pygame.display.set_caption("Pokémon Drinking Game")
         self.background = pygame.Surface(self.window.get_size())
+        self.frame = FrameEntity(0, 0)
         self.background.fill((0, 0, 0))
-        # directory = os.path.dirname(__file__)
-        # self.background_image = pygame.image.load(os.path.join(directory, "pokemon_drink.png"))
+
         self.window.blit(self.background, (0, 0))
         bg_ent = BackgroundEntity(0, 0)
         self.entities = Group(bg_ent)
 
-        self.camera = FollowFocusCamera(bg_ent.image.get_size(), self.window.get_size())
-        self.camera_focus = CameraFocus(0, 0)
+        self.camera = FollowFocusCamera(0, 0, bg_ent.image.get_size(), self.window.get_size())
 
         pygame.display.flip()
 
     def notify(self, event):
+        # CPU tick event
         if isinstance(event, TickEvent):
-            self.camera.update(self.camera_focus)
-
+            # Draw moving objects
             for entity in self.entities:
                 self.window.blit(entity.image, self.camera.apply(entity))
 
+            # Draw stationary parts on top
+            # TODO: Find way to keep stationary from unnecessary redrawing
+            self.window.blit(self.frame.image, (0, 0))
             pygame.display.update()
-        elif isinstance(event, MoveCamera):
-            if event.direction == Direction.DOWN:
 
-                self.camera_focus.rect.move_ip(0, 30)
-            elif event.direction == Direction.RIGHT:
-                self.camera_focus.rect.move_ip(30, 0)
-            elif event.direction == Direction.UP:
-                self.camera_focus.rect.move_ip(0, -30)
+        # Camera events
+        elif isinstance(event, MoveCamera):
+            if event.direction == Direction.UP:
+                self.camera.move_up()
+            elif event.direction == Direction.DOWN:
+                self.camera.move_down()
             elif event.direction == Direction.LEFT:
-                self.camera_focus.rect.move_ip(-30, 0)
+                self.camera.move_left()
+            elif event.direction == Direction.RIGHT:
+                self.camera.move_right()
 
 
 class KeyboardController(EventReceiver):
@@ -72,15 +75,17 @@ class KeyboardController(EventReceiver):
                     self.__evManager.post_event(QuitEvent())
                     pygame.quit()
                     sys.exit()
-                elif event.type == KEYDOWN:
-                    if event.key == K_DOWN:
-                        self.__evManager.post_event(MoveCamera(Direction.DOWN))
-                    elif event.key == K_UP:
-                        self.__evManager.post_event(MoveCamera(Direction.UP))
-                    elif event.key == K_RIGHT:
-                        self.__evManager.post_event(MoveCamera(Direction.RIGHT))
-                    elif event.key == K_LEFT:
-                        self.__evManager.post_event(MoveCamera(Direction.LEFT))
+
+            # Control with arrow keys
+            keys_pressed = pygame.key.get_pressed()
+            if keys_pressed[K_DOWN]:
+                self.__evManager.post_event(MoveCamera(Direction.DOWN))
+            if keys_pressed[K_UP]:
+                self.__evManager.post_event(MoveCamera(Direction.UP))
+            if keys_pressed[K_RIGHT]:
+                self.__evManager.post_event(MoveCamera(Direction.RIGHT))
+            if keys_pressed[K_LEFT]:
+                self.__evManager.post_event(MoveCamera(Direction.LEFT))
 
 
 class CPUController(EventReceiver):
