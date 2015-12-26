@@ -1,6 +1,6 @@
 # Test pokemon fighting type mechanics
 from nose.tools import assert_true, assert_false
-from pokemon.logic.pokemon_character import Charmander, Squirtle, Bulbasaur
+from pokemon.game_logic.pokemon_character import Charmander, Squirtle, Bulbasaur
 
 
 def test_super_effective():

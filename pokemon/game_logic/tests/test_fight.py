@@ -1,10 +1,10 @@
 from unittest.mock import patch
-from pokemon.logic.fight import Fight
-from pokemon.logic.player import Player
-from pokemon.logic.pokemon_character import Charmander, Bulbasaur, Squirtle
+from pokemon.game_logic.fight import Fight
+from pokemon.game_logic.player import Player
+from pokemon.game_logic.pokemon_character import Charmander, Bulbasaur, Squirtle
 
 
-@patch("pokemon.logic.fight.throw_dice", side_effect=[1, 1])
+@patch("pokemon.game_logic.fight.throw_dice", side_effect=[1, 1])
 def test_no_winner_or_loser_values_with_draw(mock_randint):
     player1 = Player("tester1", Charmander())
     player2 = Player("tester2", Charmander())
@@ -17,7 +17,7 @@ def test_no_winner_or_loser_values_with_draw(mock_randint):
     assert fight_results.draw_throw == [1]
 
 
-@patch("pokemon.logic.fight.throw_dice", side_effect=[2, 1])
+@patch("pokemon.game_logic.fight.throw_dice", side_effect=[2, 1])
 def test_no_draw_values_with_winner(mock_randint):
     player1 = Player("tester1", Charmander())
     player2 = Player("tester2", Charmander())
@@ -30,7 +30,7 @@ def test_no_draw_values_with_winner(mock_randint):
     assert fight_results.loser is not None
 
 
-@patch("pokemon.logic.fight.throw_dice", side_effect=[5, 1])
+@patch("pokemon.game_logic.fight.throw_dice", side_effect=[5, 1])
 def test_player1_wins_single_rolls(mock_randint):
     player1 = Player("tester1", Charmander())
     player2 = Player("tester2", Charmander())
@@ -43,7 +43,7 @@ def test_player1_wins_single_rolls(mock_randint):
     assert fight_results.loser_throws == [1]
 
 
-@patch("pokemon.logic.fight.throw_dice", side_effect=[2, 3])
+@patch("pokemon.game_logic.fight.throw_dice", side_effect=[2, 3])
 def test_player2_wins_single_rolls(mock_throw):
     player1 = Player("tester1", Charmander())
     player2 = Player("tester2", Charmander())
@@ -55,8 +55,8 @@ def test_player2_wins_single_rolls(mock_throw):
     assert fight_results.loser_throws == [2]
 
 
-@patch("pokemon.logic.fight.throw_dice", return_value=3)
-@patch("pokemon.logic.fight.throw_dice_twice", return_value=[1, 5])
+@patch("pokemon.game_logic.fight.throw_dice", return_value=3)
+@patch("pokemon.game_logic.fight.throw_dice_twice", return_value=[1, 5])
 def test_player1_wins_double_rolls(mock_throw, mock_throw_twice):
     player1 = Player("tester1", Squirtle())
     player2 = Player("tester2", Charmander())
@@ -69,8 +69,8 @@ def test_player1_wins_double_rolls(mock_throw, mock_throw_twice):
     assert fight_results.loser_throws == [3]
 
 
-@patch("pokemon.logic.fight.throw_dice", return_value=5)
-@patch("pokemon.logic.fight.throw_dice_twice", return_value=[1, 6])
+@patch("pokemon.game_logic.fight.throw_dice", return_value=5)
+@patch("pokemon.game_logic.fight.throw_dice_twice", return_value=[1, 6])
 def test_player2_wins_double_rolls(mock_throw, mock_throw_twice):
     player1 = Player("tester1", Bulbasaur())
     player2 = Player("tester2", Charmander())

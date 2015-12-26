@@ -1,5 +1,5 @@
-from pokemon.logic.player import Players, Player
-from pokemon.logic.pokemon_character import Squirtle
+from pokemon.game_logic.player import Players, Player
+from pokemon.game_logic.pokemon_character import Squirtle
 
 
 def test_current_player():

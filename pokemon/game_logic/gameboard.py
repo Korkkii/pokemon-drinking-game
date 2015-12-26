@@ -1,7 +1,7 @@
-from pokemon.logic.fight import Fight
-from pokemon.logic.player import Players
-from pokemon.logic.square import GymSquare
-from pokemon.logic.throw import throw_dice
+from pokemon.game_logic.fight import Fight
+from pokemon.game_logic.player import Players
+from pokemon.game_logic.square import GymSquare
+from pokemon.game_logic.throw import throw_dice
 
 
 class GameBoard(dict):

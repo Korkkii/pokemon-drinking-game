@@ -1,6 +1,6 @@
-from pokemon.logic.gameboard import GameBoard
-from pokemon.logic.player import Players
-from pokemon.logic.square import SpecialSquare
+from pokemon.game_logic.gameboard import GameBoard
+from pokemon.game_logic.player import Players
+from pokemon.game_logic.square import SpecialSquare
 
 
 class Game:
