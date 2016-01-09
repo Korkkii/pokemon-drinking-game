@@ -6,7 +6,7 @@ from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT
 import os
 from camera import Camera, FollowFocusCamera
 from pygame.sprite import Group
-from sprites import BackgroundEntity, CameraFocus, FrameEntity
+from sprites import BackgroundEntity, CameraFocus, FrameEntity, PlayerSprite
 
 
 class EventReceiver(metaclass=ABCMeta):
@@ -31,10 +31,10 @@ class ViewController(EventReceiver):
         self.background.fill((0, 0, 0))
 
         self.window.blit(self.background, (0, 0))
-        bg_ent = BackgroundEntity(0, 0)
-        self.entities = Group(bg_ent)
+        self.bg_ent = BackgroundEntity(0, 0)
+        self.entities = Group(PlayerSprite(0, 0))
 
-        self.camera = FollowFocusCamera(0, 0, bg_ent.image.get_size(), self.window.get_size())
+        self.camera = FollowFocusCamera(0, 0, self.bg_ent.image.get_size(), self.window.get_size())
 
         pygame.display.flip()
 
@@ -42,18 +42,20 @@ class ViewController(EventReceiver):
         # CPU tick event
         if isinstance(event, TickEvent):
             # Draw moving objects
-            for entity in self.entities:
-                self.window.blit(entity.image, self.camera.apply(entity))
+            self.window.blit(self.bg_ent.image, self.camera.apply(self.bg_ent))
 
             # Draw stationary parts on top
             # TODO: Find way to keep stationary from unnecessary redrawing
-            self.window.blit(self.frame.image, (0, 0))
+            # self.window.blit(self.frame.image, (0, 0))
+            for entity in self.entities:
+                self.window.blit(entity.image, self.camera.apply(entity))
             pygame.display.update()
 
         # Camera events
         elif isinstance(event, MoveCamera):
             if event.direction == Direction.UP:
-                self.camera.move_up()
+                self.entities.update()
+                # self.camera.move_up()
             elif event.direction == Direction.DOWN:
                 self.camera.move_down()
             elif event.direction == Direction.LEFT:
