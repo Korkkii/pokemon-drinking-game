@@ -1,12 +1,14 @@
 from abc import abstractmethod, ABCMeta
 import pygame
 import sys
-from event import QuitEvent, TickEvent, MoveCamera, Direction
+from event import QuitEvent, TickEvent, MoveCamera
+from constants import Direction
 from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT, FULLSCREEN
 import os
 from camera import Camera, FollowFocusCamera
 from pygame.sprite import Group
 from sprites import BackgroundEntity, CameraFocus, FrameEntity, PlayerSprite
+from pygame.time import Clock
 
 
 class EventReceiver(metaclass=ABCMeta):
@@ -19,6 +21,9 @@ class EventReceiver(metaclass=ABCMeta):
 
 
 class ViewController(EventReceiver):
+    """
+    Handles updating the game and drawing of graphics.
+    """
     def __init__(self, evManager):
         self.__evManager = evManager
         self.__evManager.register_listener(self)
@@ -32,7 +37,8 @@ class ViewController(EventReceiver):
 
         self.window.blit(self.background, (0, 0))
         self.bg_ent = BackgroundEntity(0, 0)
-        self.entities = Group(PlayerSprite(0, 0))
+        self.player = PlayerSprite(0, 0)
+        self.entities = Group(self.player)
 
         self.camera = FollowFocusCamera(0, 0, self.bg_ent.image.get_size(), self.window.get_size())
 
@@ -54,17 +60,31 @@ class ViewController(EventReceiver):
         # Camera events
         elif isinstance(event, MoveCamera):
             if event.direction == Direction.UP:
-                self.entities.update()
-                # self.camera.move_up()
+                # self.player.facing_direction = Direction.UP
+                # self.player.moving = True
+                self.camera.move_up()
             elif event.direction == Direction.DOWN:
+                # self.player.facing_direction = Direction.DOWN
+                # self.player.moving = True
                 self.camera.move_down()
             elif event.direction == Direction.LEFT:
+                # self.player.facing_direction = Direction.LEFT
+                # self.player.moving = True
                 self.camera.move_left()
             elif event.direction == Direction.RIGHT:
+                # self.player.facing_direction = Direction.RIGHT
+                # self.player.moving = True
                 self.camera.move_right()
+            # elif event.direction == Direction.STATIONARY:
+                # self.player.facing_direction = Direction.DOWN
+                # self.player.moving = False
+            # self.entities.update()
 
 
 class KeyboardController(EventReceiver):
+    """
+    Handles the keyboard control events.
+    """
     def __init__(self, evManager):
         self.__evManager = evManager
         self.__evManager.register_listener(self)
@@ -88,9 +108,18 @@ class KeyboardController(EventReceiver):
                 self.__evManager.post_event(MoveCamera(Direction.RIGHT))
             if keys_pressed[K_LEFT]:
                 self.__evManager.post_event(MoveCamera(Direction.LEFT))
+            if (not keys_pressed[K_DOWN] and not keys_pressed[K_UP] and not keys_pressed[K_RIGHT] and
+                    not keys_pressed[K_LEFT]):
+                    self.__evManager.post_event(MoveCamera(Direction.STATIONARY))
 
 
 class CPUController(EventReceiver):
+    """
+    Handles game engine ticks.
+    """
+    tick_rate = 60
+    clock = Clock()
+
     def __init__(self, evManager):
         self.__evManager = evManager
         self.__evManager.register_listener(self)
@@ -99,6 +128,7 @@ class CPUController(EventReceiver):
     def run(self):
         while self.__keep_running:
             self.__evManager.post_event(TickEvent())
+            self.clock.tick(self.tick_rate)
 
     def notify(self, event):
         if isinstance(event, QuitEvent):
