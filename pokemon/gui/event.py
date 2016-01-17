@@ -40,3 +40,8 @@ class QuitEvent(Event):
 class MoveCamera(Event):
     def __init__(self, direction):
         self.direction = direction
+
+
+class ChangeMusic(Event):
+    def __init__(self):
+        pass

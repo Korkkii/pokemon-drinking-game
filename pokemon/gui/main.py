@@ -1,5 +1,5 @@
 from event import EventManager
-from controller import CPUController, KeyboardController, ViewController
+from controller import CPUController, KeyboardController, ViewController, SoundController
 from pygame.locals import QUIT
 import pygame
 import sys
@@ -18,6 +18,7 @@ if __name__ == '__main__':
     kb_control = KeyboardController(evManager)
     cpu_control = CPUController(evManager)
     view_control = ViewController(evManager)
+    sound_control = SoundController(evManager)
 
     # Start game
     cpu_control.run()

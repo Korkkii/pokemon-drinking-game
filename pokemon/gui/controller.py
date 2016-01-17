@@ -1,9 +1,9 @@
 from abc import abstractmethod, ABCMeta
 import pygame
 import sys
-from event import QuitEvent, TickEvent, MoveCamera
+from event import QuitEvent, TickEvent, MoveCamera, ChangeMusic
 from constants import Direction
-from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT, FULLSCREEN
+from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT, K_p, FULLSCREEN
 import os
 from camera import Camera, FollowFocusCamera
 from pygame.sprite import Group
@@ -29,6 +29,7 @@ class ViewController(EventReceiver):
         self.__evManager.register_listener(self)
 
         pygame.init()
+
         self.window = pygame.display.set_mode((0, 0), FULLSCREEN)
         pygame.display.set_caption("Pokémon Drinking Game")
         self.background = pygame.Surface(self.window.get_size())
@@ -81,36 +82,57 @@ class ViewController(EventReceiver):
             # self.entities.update()
 
 
+class SoundController(EventReceiver):
+    base = os.path.dirname(__file__)
+
+    def __init__(self, evManager):
+        self.evManager = evManager
+        self.evManager.register_listener(self)
+        self.mixer = pygame.mixer
+
+        self.mixer.init()
+        f = os.path.join(self.base, "pokemon_opening.mp3")
+        self.mixer.music.load(f)
+        self.mixer.music.play(0)
+
+    def notify(self, event):
+        if isinstance(event, ChangeMusic):
+            self.mixer.music.load(os.path.join(self.base, "pokemon_pallet_town.mp3"))
+            self.mixer.music.play(0)
+
+
 class KeyboardController(EventReceiver):
     """
     Handles the keyboard control events.
     """
     def __init__(self, evManager):
-        self.__evManager = evManager
-        self.__evManager.register_listener(self)
+        self.evManager = evManager
+        self.evManager.register_listener(self)
 
     def notify(self, event):
         if isinstance(event, TickEvent):
             for event in pygame.event.get():
                 # Close with ESC or window close click
                 if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                    self.__evManager.post_event(QuitEvent())
+                    self.evManager.post_event(QuitEvent())
                     pygame.quit()
                     sys.exit()
 
             # Control with arrow keys
             keys_pressed = pygame.key.get_pressed()
             if keys_pressed[K_DOWN]:
-                self.__evManager.post_event(MoveCamera(Direction.DOWN))
+                self.evManager.post_event(MoveCamera(Direction.DOWN))
             if keys_pressed[K_UP]:
-                self.__evManager.post_event(MoveCamera(Direction.UP))
+                self.evManager.post_event(MoveCamera(Direction.UP))
             if keys_pressed[K_RIGHT]:
-                self.__evManager.post_event(MoveCamera(Direction.RIGHT))
+                self.evManager.post_event(MoveCamera(Direction.RIGHT))
             if keys_pressed[K_LEFT]:
-                self.__evManager.post_event(MoveCamera(Direction.LEFT))
+                self.evManager.post_event(MoveCamera(Direction.LEFT))
             if (not keys_pressed[K_DOWN] and not keys_pressed[K_UP] and not keys_pressed[K_RIGHT] and
                     not keys_pressed[K_LEFT]):
-                    self.__evManager.post_event(MoveCamera(Direction.STATIONARY))
+                    self.evManager.post_event(MoveCamera(Direction.STATIONARY))
+            if keys_pressed[K_p]:
+                self.evManager.post_event(ChangeMusic())
 
 
 class CPUController(EventReceiver):
