@@ -70,6 +70,9 @@ class Player:
     def __str__(self):
         return "Player {} with pokemon {!s}".format(self.name, self.pokemon)
 
+    def __hash__(self):
+        return hash(repr(self))
+
 
 class Drink:
     """

@@ -19,3 +19,14 @@ DIRECTIONS = {
     Direction.DOWN: Vector2(0, 1),
     Direction.LEFT: Vector2(-1, 0)
 }
+GAMEBOARD = [
+    ["R", "R", "R", "R", "R", "R", "R", "R", "D"],
+    ["U", "R", "R", "R", "R", "R", "R", "D", "D"],
+    ["U", "U", "R", "R", "R", "R", "D", "D", "D"],
+    ["U", "U", "U", "N", "N", "N", "D", "D", "D"],
+    ["U", "U", "U", "N", "N", "N", "D", "D", "D"],
+    ["U", "U", "U", "N", "N", "N", "D", "D", "D"],
+    ["U", "U", "U", "F", "L", "L", "L", "D", "D"],
+    ["U", "U", "U", "L", "L", "L", "L", "L", "D"],
+    ["S", "U", "L", "L", "L", "L", "L", "L", "L"]
+]

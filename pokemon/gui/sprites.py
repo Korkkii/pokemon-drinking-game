@@ -5,7 +5,7 @@ import pygame
 from pygame.transform import scale
 from pygame.math import Vector2 as vec2
 import time
-from constants import Direction, DIRECTIONS
+from gui.constants import Direction, DIRECTIONS
 
 
 class Entity(Sprite):
@@ -97,6 +97,7 @@ class PlayerSprite(Entity):
             self.sprites[sprite_sheet_direction[i // 3]] = direction_sprites
 
         self.image = self.sprites[self.facing_direction][-1]  # Select stationary image
+        self.target = vec2(x, y)
         Entity.__init__(self, x, y, self.sprite_width * self.scale_factor, self.sprite_height * self.scale_factor)
 
     def update(self):

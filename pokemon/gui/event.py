@@ -38,10 +38,26 @@ class QuitEvent(Event):
 
 
 class MoveCamera(Event):
-    def __init__(self, direction):
+    def __init__(self, direction=None, target=None):
         self.direction = direction
+        self.target = target
+
+
+class MoveCameraTarget(Event):
+    def __init__(self, target):
+        self.target = target
 
 
 class ChangeMusic(Event):
+    def __init__(self):
+        pass
+
+
+class MovePlayer(Event):
+    def __init__(self, target_coordinate):
+        self.target_coordinate = target_coordinate
+
+
+class PingPlayer(Event):
     def __init__(self):
         pass

@@ -51,6 +51,9 @@ class FollowFocusCamera(Camera):
 
         return Rect(x, y, w, h)
 
+    def target(self, target):
+        self.state = self.camera_function_follow(target)
+
     def move_up(self, amount=(0, 0)):
         self.state = self.camera_function_follow((0, -30))
 
