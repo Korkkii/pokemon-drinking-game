@@ -19,7 +19,7 @@ class BackgroundEntity(Entity):
 
     def __init__(self, x, y):
         directory = os.path.dirname(__file__)
-        self.image = pygame.image.load(os.path.join(directory, "pokemon_drink.png"))
+        self.image = pygame.image.load(os.path.join(directory, "gameboard.png")).convert()
         size = self.image.get_size()
         Entity.__init__(self, x, y, size[0], size[1])
 
@@ -34,7 +34,7 @@ class FrameEntity(Entity):
 
     def __init__(self, x, y):
         directory = os.path.dirname(__file__)
-        self.image = pygame.image.load(os.path.join(directory, "frame.png"))
+        self.image = pygame.image.load(os.path.join(directory, "frame.png")).convert()
         size = self.image.get_size()
         Entity.__init__(self, x, y, size[0], size[1])
 
@@ -58,23 +58,27 @@ class PlayerSprite(Entity):
     facing_direction = Direction.RIGHT
     moving = False
     fps = 5  # How fast sprite should be updated
-
-    # The top left corner coordinate of Nth sprite in a sprite sheet
-    def get_sprite_location(self, index):
-        x = (self.sprite_width + self.sprite_width_space) * (index % 3)
-        y = (self.sprite_height + self.sprite_height_space) * (index // 3)
-        return (x, y)
+    target = vec2(0, 0)
 
     def __init__(self, x, y):
         # Get sprite sheet
         directory = os.path.dirname(__file__)
         sprite_sheet = pygame.image.load(os.path.join(directory, "player_sprite.png")).convert_alpha()
 
-        # Order of sprites' alignments in sprite sheet
+        self.sprites = get_player_sprites(sprite_sheet)
+
+        self.image = self.sprites[self.facing_direction][-1]  # Select stationary image
+        # TODO: Sprite in middle of coordinates
+        self.target = vec2(x, y)
+        Entity.__init__(self, x, y, self.sprite_width * self.scale_factor, self.sprite_height * self.scale_factor)
+
+    def get_player_sprites(self, sprite_sheet):
+        """Creates a dict containing all player sprites with grouped by facing. Not generally applicable."""
+
+        # Order of sprites' facings in sprite sheet
         sprite_sheet_direction = [Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP]
 
-        # Create all sprites to a dict
-        self.sprites = {}
+        sprites = {}
         for i in range(0, 12, 3):
             direction_sprites = []
             scaled_sprite_size = (self.sprite_width * self.scale_factor, self.sprite_height * self.scale_factor)
@@ -86,6 +90,7 @@ class PlayerSprite(Entity):
 
             current_direction = sprite_sheet_direction[i // 3]
 
+            # Current sprite sheet has duplicate sprites for left and right facing, thus reordering to allow animation
             if current_direction == Direction.RIGHT or current_direction == Direction.LEFT:
                 direction_sprites = [scale(sprite_sheet.subsurface(rect), scaled_sprite_size) for rect in
                                      [sprite_move_1, sprite_stationary, sprite_move_2]]
@@ -94,14 +99,35 @@ class PlayerSprite(Entity):
                                      [sprite_move_1, sprite_move_2, sprite_stationary]]
 
             # Add sprites to sprite dict with alignment as key
-            self.sprites[sprite_sheet_direction[i // 3]] = direction_sprites
+            sprites[sprite_sheet_direction[i // 3]] = direction_sprites
 
-        self.image = self.sprites[self.facing_direction][-1]  # Select stationary image
+        return sprites
+
+    # The top left corner coordinate of Nth sprite in a sprite sheet
+    def get_sprite_location(self, index):
+        x = (self.sprite_width + self.sprite_width_space) * (index % 3)
+        y = (self.sprite_height + self.sprite_height_space) * (index // 3)
+        return (x, y)
+
+    def move_to_target(self, x, y):
+        # Set new direction
+        if x > self.target.x:
+            self.facing_direction = Direction.RIGHT
+        elif x < self.target.x:
+            self.facing_direction = Direction.LEFT
+        elif y > self.target:
+            self.facing_direction = Direction.DOWN
+        elif y < self.target:
+            self.facing_direction = Direction.UP
+
         self.target = vec2(x, y)
-        Entity.__init__(self, x, y, self.sprite_width * self.scale_factor, self.sprite_height * self.scale_factor)
+
+    def need_to_move(self):
+        next_coordinate = self.target + DIRECTIONS[self.facing_direction]
+        return next_coordinate.x != self.target.x and next_coordinate.y != self.target.y
 
     def update(self):
-        if not self.moving:
+        if not self.need_to_move():
             # Stationary image
             self.image = self.sprites[self.facing_direction][-1]
         else:
@@ -109,6 +135,8 @@ class PlayerSprite(Entity):
             frame_index = int((time.time() - self.start_frame) * self.fps % self.number_of_movement_images)
             self.image = self.sprites[self.facing_direction][frame_index]
 
+            # TODO: Calculate sprite to middle of target
+            # TODO: Calculate precisely to target, not over
             # Calculate new position
             new_velocity = DIRECTIONS[self.facing_direction] * self.velocity
             self.rect.move_ip(new_velocity.x, new_velocity.y)
