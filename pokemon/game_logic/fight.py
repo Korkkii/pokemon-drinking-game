@@ -1,5 +1,5 @@
-from game_logic.player import Drink
-from game_logic.throw import throw_dice_twice, throw_dice
+from pokemon.game_logic.player import Drink
+from pokemon.game_logic.throw import throw_dice_twice, throw_dice
 
 
 class Fight:

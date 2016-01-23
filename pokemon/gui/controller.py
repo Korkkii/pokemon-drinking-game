@@ -2,7 +2,7 @@ from abc import abstractmethod, ABCMeta
 import pygame
 import sys
 from gui.event import QuitEvent, TickEvent, MoveCamera, ChangeMusic, MovePlayer, PingPlayer
-from gui.constants import Direction, GAMEBOARD, DIRECTIONS
+from gui.constants import Direction, GAMEBOARD, DIRECTIONS, State
 import constants
 from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT, K_p, K_k, FULLSCREEN
 import os
@@ -32,6 +32,10 @@ class ViewController(EventReceiver):
     """
     Handles updating the game and drawing of graphics.
     """
+
+    # Size of one square on board in pixels
+    board_rect_size = (186, 186)
+
     def __init__(self, evManager):
         self.__evManager = evManager
         self.__evManager.register_listener(self)
@@ -46,16 +50,18 @@ class ViewController(EventReceiver):
 
         self.window.blit(self.background, (0, 0))
         self.bg_ent = BackgroundEntity(0, 0)
-        self.player = PlayerSprite(0, 0)
-        self.entities = Group(self.player)
+        self.player_sprite = PlayerSprite(*self.from_game_coord_to_pixel(0, 8).center)
+        self.entities = Group(self.player_sprite)
 
         self.camera = FollowFocusCamera(0, 0, self.bg_ent.image.get_size(), self.window.get_size())
-
+        self.init_gameboard()
         pygame.display.flip()
 
     def notify(self, event):
         # CPU tick event
         if isinstance(event, TickEvent):
+            self.update_game()
+            self.entities.update()
             # Draw moving objects
             self.window.blit(self.bg_ent.image, self.camera.apply(self.bg_ent))
 
@@ -81,35 +87,10 @@ class ViewController(EventReceiver):
 
         # Move player
         elif isinstance(event, MovePlayer):
-            self.player.rect = Rect(event.target_coordinate, self.player.rect.size)
+            self.player.move_to_target(*event.target_coordinate)
+            # self.player.rect = Rect(event.target_coordinate, self.player.rect.size)
 
-
-class SoundController(EventReceiver):
-    base = os.path.dirname(__file__)
-
-    def __init__(self, evManager):
-        self.evManager = evManager
-        self.evManager.register_listener(self)
-        self.mixer = pygame.mixer
-
-        self.mixer.init()
-        f = os.path.join(self.base, "pokemon_pallet_town.mp3")
-        self.mixer.music.load(f)
-        self.mixer.music.play(0)
-
-    def notify(self, event):
-        if isinstance(event, ChangeMusic):
-            self.mixer.music.load(os.path.join(self.base, "pokemon_opening.mp3"))
-            self.mixer.music.play(0)
-
-
-class GameController(EventReceiver):
-    board_rect_size = (186, 186)
-
-    def __init__(self, evManager):
-        self.evManager = evManager
-        self.evManager.register_listener(self)
-
+    def init_gameboard(self):
         direction_dict = {
             "U": Direction.UP,
             "R": Direction.RIGHT,
@@ -153,18 +134,36 @@ class GameController(EventReceiver):
         self.players = [self.player]
         self.gameboard = GameBoard(self.board_squares, self.players)
 
-    def from_game_coord_to_pixel(self, x, y):
-        print(x, y)
-        return Rect((x * self.board_rect_size[1], y * self.board_rect_size[0]), self.board_rect_size)
-
-    def notify(self, event):
-        if isinstance(event, PingPlayer):
+    def update_game(self):
+        if self.player_sprite.state != State.MOVING:
             current_square = self.gameboard[self.player]
             game_coordinate = self.game_coordinates[current_square.number + 1]
             target_coordinate = self.from_game_coord_to_pixel(*game_coordinate)
 
             self.gameboard[self.player] = self.board_squares[current_square.number + 1]
-            self.evManager.post_event(MovePlayer(target_coordinate.center))
+            self.player_sprite.move_to_target(*target_coordinate.center)
+
+    def from_game_coord_to_pixel(self, x, y):
+        return Rect((x * self.board_rect_size[1], y * self.board_rect_size[0]), self.board_rect_size)
+
+
+class SoundController(EventReceiver):
+    base = os.path.dirname(__file__)
+
+    def __init__(self, evManager):
+        self.evManager = evManager
+        self.evManager.register_listener(self)
+        self.mixer = pygame.mixer
+
+        self.mixer.init()
+        f = os.path.join(self.base, "pokemon_pallet_town.mp3")
+        self.mixer.music.load(f)
+        self.mixer.music.play(0)
+
+    def notify(self, event):
+        if isinstance(event, ChangeMusic):
+            self.mixer.music.load(os.path.join(self.base, "pokemon_opening.mp3"))
+            self.mixer.music.play(0)
 
 
 class KeyboardController(EventReceiver):

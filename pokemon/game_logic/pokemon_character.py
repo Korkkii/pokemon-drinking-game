@@ -1,4 +1,4 @@
-from game_logic.pokemon_type import Fire, Water, Grass, Electric
+from pokemon.game_logic.pokemon_type import Fire, Water, Grass, Electric
 
 
 class PokemonBase:

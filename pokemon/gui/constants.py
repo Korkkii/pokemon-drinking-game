@@ -13,6 +13,12 @@ class Direction(Enum):
     LEFT = 4
     STATIONARY = 5
 
+
+class State(Enum):
+    STATIONARY = 0
+    MOVING = 1
+
+
 DIRECTIONS = {
     Direction.UP: Vector2(0, -1),
     Direction.RIGHT: Vector2(1, 0),
