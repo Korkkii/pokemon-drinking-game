@@ -43,8 +43,11 @@ class FrameEntity(Entity):
 
 
 class MovingSprite(Entity):
+        """
+        Sprite base class that implements movement on a gameboard.
+        """
         # Sprite state
-        speed = 10
+        speed = 5
         facing_direction = Direction.DOWN
         state = State.STATIONARY
         targets = deque()  # Target queue
@@ -58,6 +61,10 @@ class MovingSprite(Entity):
             self.target = vec2(self.rect.centerx, self.rect.centery)
 
         def move_to_target(self, x, y):
+            """
+            Add new target for the sprite to move towards. Starts movement towards target if stationary, otherwise
+            appends the target to a queue.
+            """
             # Set new direction
             new_target = vec2(x, y)
 
@@ -83,7 +90,7 @@ class MovingSprite(Entity):
             return current_position[0] != self.target.x or current_position[1] != self.target.y
 
         def calculate_movement(self):
-            if self.facing_direction != Direction.STATIONARY:
+            if self.state != State.STATIONARY:
                 current_position = vec2(self.rect.centerx, self.rect.centery)
                 velocity = DIRECTIONS[self.facing_direction] * self.speed
                 new_position = current_position + velocity
@@ -103,21 +110,26 @@ class MovingSprite(Entity):
                 return vec2(0, 0)
 
         def move(self):
+            """
+            Move the sprite towards next target. Switches to a new target if targets queue is not empty, otherwise
+            stays still.
+            """
             # Check if already at current target
             if not self.need_to_move():
                 # Get new target
                 if len(self.targets) != 0:
-                    self.target = self.targets.popleft()
-                    self.facing_direction = self.get_facing(*self.target)
+                    next_target = self.targets.popleft()
+                    self.facing_direction = self.get_facing(*next_target)
+                    self.target = next_target
+                # No target, stay still
                 else:
                     self.state = State.STATIONARY
-                    return Direction.STATIONARY
+                    return
             if self.state != State.MOVING:
                 self.state = State.MOVING
 
             velocity = self.calculate_movement()
             self.rect.move_ip(*velocity)
-            return self.facing_direction
 
 
 class PlayerSprite(MovingSprite):
@@ -135,7 +147,7 @@ class PlayerSprite(MovingSprite):
     # Sprite animation state
     start_frame = time.time()
     number_of_movement_images = 2
-    fps = 6  # How fast sprite should be updated
+    fps = 7  # How fast sprite should be updated
 
     def __init__(self, x, y):
         # Get sprite sheet
@@ -186,13 +198,14 @@ class PlayerSprite(MovingSprite):
         return (x, y)
 
     def update(self):
-        direction = self.move()
-        if direction == Direction.STATIONARY:
+        # Update movement state
+        self.move()
+
+        # Update image
+        if self.state == State.STATIONARY:
             # Stationary image
             self.image = self.sprites[Direction.DOWN][-1]
         else:
-            # Move
-
-            # Update image
+            # Update image with respect to movement
             frame_index = int((time.time() - self.start_frame) * self.fps % self.number_of_movement_images)
             self.image = self.sprites[self.facing_direction][frame_index]

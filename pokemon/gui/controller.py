@@ -17,7 +17,7 @@ from pokemon.game_logic.pokemon_character import Bulbasaur, Charmander, Squirtle
 from pokemon.game_logic.square import Square
 from pokemon.gui.camera import Camera, FollowFocusCamera
 from pokemon.gui.constants import DIRECTIONS, GAMEBOARD, Direction, State
-from pokemon.gui.event import ChangeMusic, MoveCamera, MovePlayer, PingPlayer, QuitEvent, TickEvent
+from pokemon.gui.event import ChangeMusic, MoveCamera, MovePlayer, QuitEvent, TickEvent
 from pokemon.gui.sprites import BackgroundEntity, CameraFocus, FrameEntity, PlayerSprite
 
 
@@ -137,8 +137,8 @@ class ViewController(EventReceiver):
         self.gameboard = GameBoard(self.board_squares, self.players)
 
     def update_game(self):
-        if self.player_sprite.state != State.MOVING:
-            current_square = self.gameboard[self.player]
+        current_square = self.gameboard[self.player]
+        if current_square.number < 69:
             game_coordinate = self.game_coordinates[current_square.number + 1]
             target_coordinate = self.from_game_coord_to_pixel(*game_coordinate)
 
@@ -200,8 +200,6 @@ class KeyboardController(EventReceiver):
                     self.evManager.post_event(MoveCamera(Direction.STATIONARY))
             if keys_pressed[K_p]:
                 self.evManager.post_event(ChangeMusic())
-            if keys_pressed[K_k]:
-                self.evManager.post_event(PingPlayer())
 
 
 class CPUController(EventReceiver):

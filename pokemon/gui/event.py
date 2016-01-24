@@ -56,8 +56,3 @@ class ChangeMusic(Event):
 class MovePlayer(Event):
     def __init__(self, target_coordinate):
         self.target_coordinate = target_coordinate
-
-
-class PingPlayer(Event):
-    def __init__(self):
-        pass
