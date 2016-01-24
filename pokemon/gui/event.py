@@ -53,6 +53,12 @@ class ChangeMusic(Event):
         pass
 
 
-class MovePlayer(Event):
-    def __init__(self, target_coordinate):
-        self.target_coordinate = target_coordinate
+class PlayerMoved(Event):
+    def __init__(self, player, square_num):
+        self.player = player
+        self.square_num = square_num
+
+
+class PlayTurn(Event):
+    def __init__(self):
+        pass

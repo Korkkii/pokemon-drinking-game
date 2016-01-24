@@ -114,6 +114,9 @@ class Players:
         return self.__players[0]
 
     def next(self):
-        head, next_player, *tail = self.__players
-        self.__players = [next_player] + tail + [head]
-        return next_player
+        if len(self.__players) > 1:
+            head, next_player, *tail = self.__players
+            self.__players = [next_player] + tail + [head]
+            return next_player
+        else:
+            return self.__players[0]

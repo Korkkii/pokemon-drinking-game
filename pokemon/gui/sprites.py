@@ -84,6 +84,8 @@ class MovingSprite(Entity):
                 return Direction.DOWN
             elif y < self.target.y:
                 return Direction.UP
+            else:
+                return Direction.STATIONARY
 
         def need_to_move(self):
             current_position = self.rect.center
@@ -95,7 +97,7 @@ class MovingSprite(Entity):
                 velocity = DIRECTIONS[self.facing_direction] * self.speed
                 new_position = current_position + velocity
                 target_position = self.target
-
+                print(current_position, velocity, new_position, target_position, self.targets)
                 # Calculate velocity to just reach the target, not go over
                 if (current_position.x < target_position.x < new_position.x or
                    new_position.x < target_position.x < current_position.x):
@@ -119,7 +121,14 @@ class MovingSprite(Entity):
                 # Get new target
                 if len(self.targets) != 0:
                     next_target = self.targets.popleft()
-                    self.facing_direction = self.get_facing(*next_target)
+                    facing = self.get_facing(*next_target)
+
+                    # If new target is equal to previous
+                    if facing == Direction.STATIONARY:
+                        self.state = State.STATIONARY
+                        return
+
+                    self.facing_direction = facing
                     self.target = next_target
                 # No target, stay still
                 else:

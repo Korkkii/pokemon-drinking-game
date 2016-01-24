@@ -2,7 +2,7 @@
 
 ## Disclaimer
 
-I do not own the Pokemon franchise (property of Nintendo) nor the [assets I'm using](pokemon/gui/assets/source.txt). Only the code here is mine.
+I do not own the Pokemon franchise (property of Nintendo) nor the [assets I'm using](pokemon/gui/assets/README.md). Only the code here is mine.
 
 
 ## What is this
