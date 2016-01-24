@@ -123,13 +123,13 @@ class SoundController(EventReceiver):
         self.mixer = pygame.mixer
 
         self.mixer.init()
-        f = os.path.join(self.base, "pokemon_pallet_town.mp3")
+        f = os.path.join(self.base, "assets/pokemon_pallet_town.mp3")
         self.mixer.music.load(f)
         self.mixer.music.play(0)
 
     def notify(self, event):
         if isinstance(event, ChangeMusic):
-            self.mixer.music.load(os.path.join(self.base, "pokemon_opening.mp3"))
+            self.mixer.music.load(os.path.join(self.base, "assets/pokemon_opening.mp3"))
             self.mixer.music.play(0)
 
 
