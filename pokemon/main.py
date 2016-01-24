@@ -1,5 +1,5 @@
-from gui.event import EventManager
-from gui.controller import CPUController, KeyboardController, ViewController, SoundController
+from pokemon.gui.event import EventManager
+from pokemon.gui.controller import CPUController, KeyboardController, ViewController, SoundController
 from pygame.locals import QUIT
 import pygame
 import sys

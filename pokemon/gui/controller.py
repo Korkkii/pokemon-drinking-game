@@ -1,22 +1,24 @@
-from abc import abstractmethod, ABCMeta
-import pygame
-import sys
-from gui.event import QuitEvent, TickEvent, MoveCamera, ChangeMusic, MovePlayer, PingPlayer
-from gui.constants import Direction, GAMEBOARD, DIRECTIONS, State
-import constants
-from pygame.locals import KEYDOWN, K_ESCAPE, QUIT, K_DOWN, K_UP, K_RIGHT, K_LEFT, K_p, K_k, FULLSCREEN
 import os
-from gui.camera import Camera, FollowFocusCamera
-from pygame.sprite import Group
-from gui.sprites import BackgroundEntity, CameraFocus, FrameEntity, PlayerSprite
-from pygame.time import Clock
-from game_logic.gameboard import GameBoard
-from game_logic.square import Square
-from game_logic.player import Player
-from game_logic.pokemon_character import Bulbasaur, Charmander, Squirtle
-from pygame.math import Vector2
+import sys
 import time
+from abc import ABCMeta, abstractmethod
+
+import pygame
 from pygame import Rect
+from pygame.locals import (FULLSCREEN, K_DOWN, K_ESCAPE, K_LEFT, K_RIGHT, K_UP, KEYDOWN, QUIT, K_k, K_p)
+from pygame.math import Vector2
+from pygame.sprite import Group
+from pygame.time import Clock
+
+import constants
+from pokemon.game_logic.gameboard import GameBoard
+from pokemon.game_logic.player import Player
+from pokemon.game_logic.pokemon_character import Bulbasaur, Charmander, Squirtle
+from pokemon.game_logic.square import Square
+from pokemon.gui.camera import Camera, FollowFocusCamera
+from pokemon.gui.constants import DIRECTIONS, GAMEBOARD, Direction, State
+from pokemon.gui.event import ChangeMusic, MoveCamera, MovePlayer, PingPlayer, QuitEvent, TickEvent
+from pokemon.gui.sprites import BackgroundEntity, CameraFocus, FrameEntity, PlayerSprite
 
 
 class EventReceiver(metaclass=ABCMeta):

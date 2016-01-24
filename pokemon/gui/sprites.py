@@ -45,9 +45,9 @@ class FrameEntity(Entity):
 class MovingSprite(Entity):
         # Sprite state
         speed = 10
-        facing_direction = Direction.STATIONARY
+        facing_direction = Direction.DOWN
         state = State.STATIONARY
-        targets = deque() # Target queue
+        targets = deque()  # Target queue
 
         def __init__(self, x, y, width, height):
             super(MovingSprite, self).__init__(x, y, width, height)
@@ -62,19 +62,21 @@ class MovingSprite(Entity):
             new_target = vec2(x, y)
 
             if self.state == State.STATIONARY and new_target != self.target and not self.need_to_move():
-                if x > self.target.x:
-                    self.facing_direction = Direction.RIGHT
-                elif x < self.target.x:
-                    self.facing_direction = Direction.LEFT
-                elif y > self.target.y:
-                    self.facing_direction = Direction.DOWN
-                elif y < self.target.y:
-                    self.facing_direction = Direction.UP
-
+                self.facing_direction = self.get_facing(x, y)
                 self.state = State.MOVING
                 self.target = vec2(x, y)
             else:
                 self.targets.append(vec2(x, y))
+
+        def get_facing(self, x, y):
+            if x > self.target.x:
+                return Direction.RIGHT
+            elif x < self.target.x:
+                return Direction.LEFT
+            elif y > self.target.y:
+                return Direction.DOWN
+            elif y < self.target.y:
+                return Direction.UP
 
         def need_to_move(self):
             current_position = self.rect.center
@@ -82,27 +84,43 @@ class MovingSprite(Entity):
 
         def calculate_movement(self):
             if self.facing_direction != Direction.STATIONARY:
-
                 current_position = vec2(self.rect.centerx, self.rect.centery)
                 velocity = DIRECTIONS[self.facing_direction] * self.speed
                 new_position = current_position + velocity
                 target_position = self.target
+
                 # Calculate velocity to just reach the target, not go over
                 if (current_position.x < target_position.x < new_position.x or
-                new_position.x < target_position.x < current_position.x):
-
+                   new_position.x < target_position.x < current_position.x):
                     velocity.x = target_position.x - current_position.x
-                elif (current_position.y < target_position.y < new_position.y or
-                new_position.y < target_position.y < current_position.y):
 
+                elif (current_position.y < target_position.y < new_position.y or
+                      new_position.y < target_position.y < current_position.y):
                     velocity.y = target_position.y - current_position.y
 
                 return velocity
             else:
                 return vec2(0, 0)
 
+        def move(self):
+            # Check if already at current target
+            if not self.need_to_move():
+                # Get new target
+                if len(self.targets) != 0:
+                    self.target = self.targets.popleft()
+                    self.facing_direction = self.get_facing(*self.target)
+                else:
+                    self.state = State.STATIONARY
+                    return Direction.STATIONARY
+            if self.state != State.MOVING:
+                self.state = State.MOVING
 
-class PlayerSprite(Entity):
+            velocity = self.calculate_movement()
+            self.rect.move_ip(*velocity)
+            return self.facing_direction
+
+
+class PlayerSprite(MovingSprite):
     """
     Player sprite class that shows appropriate sprite for sprite state.
     """
@@ -117,7 +135,7 @@ class PlayerSprite(Entity):
     # Sprite animation state
     start_frame = time.time()
     number_of_movement_images = 2
-    fps = 5  # How fast sprite should be updated
+    fps = 6  # How fast sprite should be updated
 
     def __init__(self, x, y):
         # Get sprite sheet
@@ -127,10 +145,8 @@ class PlayerSprite(Entity):
         self.sprites = self.get_player_sprites(sprite_sheet)
 
         self.image = self.sprites[self.facing_direction][-1]  # Select stationary image
-
-
-        Entity.__init__(self, x, y, self.sprite_width * self.scale_factor, self.sprite_height * self.scale_factor)
-
+        sprite_size = (self.sprite_width * self.scale_factor, self.sprite_height * self.scale_factor)
+        super(PlayerSprite, self).__init__(x, y, *sprite_size)
 
     def get_player_sprites(self, sprite_sheet):
         """Creates a dict containing all player sprites with grouped by facing. Not generally applicable."""
@@ -170,17 +186,13 @@ class PlayerSprite(Entity):
         return (x, y)
 
     def update(self):
-        # print(self.need_to_move())
-        if not self.need_to_move(self.target, self.facing_direction):
+        direction = self.move()
+        if direction == Direction.STATIONARY:
             # Stationary image
-            self.image = self.sprites[self.facing_direction][-1]
-            self.state = State.STATIONARY
+            self.image = self.sprites[Direction.DOWN][-1]
         else:
+            # Move
+
             # Update image
             frame_index = int((time.time() - self.start_frame) * self.fps % self.number_of_movement_images)
             self.image = self.sprites[self.facing_direction][frame_index]
-
-            new_velocity = self.calculate_movement(self.rect.center, self.target, DIRECTIONS[self.facing_direction],
-                                                   self.velocity)
-
-            self.rect = self.rect.move(*new_velocity)
