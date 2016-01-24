@@ -22,7 +22,7 @@ class BackgroundEntity(Entity):
 
     def __init__(self, x, y):
         directory = os.path.dirname(__file__)
-        self.image = pygame.image.load(os.path.join(directory, "gameboard.png")).convert()
+        self.image = pygame.image.load(os.path.join(directory, "assets/gameboard.png")).convert()
         size = self.image.get_size()
         Entity.__init__(self, x, y, size[0], size[1])
 
@@ -152,7 +152,7 @@ class PlayerSprite(MovingSprite):
     def __init__(self, x, y):
         # Get sprite sheet
         directory = os.path.dirname(__file__)
-        sprite_sheet = pygame.image.load(os.path.join(directory, "player_sprite.png")).convert_alpha()
+        sprite_sheet = pygame.image.load(os.path.join(directory, "assets/player_sprite.png")).convert_alpha()
 
         self.sprites = self.get_player_sprites(sprite_sheet)
 
