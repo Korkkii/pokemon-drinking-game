@@ -14,5 +14,5 @@ class GameBoard(dict):
 
     def players_in_square(self, target_square):
         for player, square in self.items():
-            if target_square == square:
+            if target_square == square.number:
                 yield player

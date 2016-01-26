@@ -63,3 +63,9 @@ class PlayerMoved(Event):
 class PlayTurn(Event):
     def __init__(self):
         pass
+
+
+class PlayersFought(Event):
+    def __init__(self, player, results):
+        self.player = player
+        self.results = results

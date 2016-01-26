@@ -2,7 +2,8 @@ from pokemon.game_logic.gameboard import GameBoard
 from pokemon.game_logic.player import Players
 from pokemon.game_logic.square import SpecialSquare
 from pokemon.game_logic.throw import throw_dice
-from pokemon.gui.event import PlayerMoved
+from pokemon.game_logic.fight import Fight
+from pokemon.gui.event import PlayerMoved, PlayersFought
 from pokemon.gui.constants import Direction, DIRECTIONS, GAMEBOARD
 from pygame.math import Vector2
 from pokemon.game_logic.square import GymSquare, Square
@@ -86,9 +87,10 @@ class Game:
         self.__ev_manager.post_event(PlayerMoved(current_player, player_location.number, next_square))
 
         # Fight all players in the destination square
-        # opponents = (fighter for fighter in self.__board.players_in_square(current) if fighter is not player)
-        # for opponent in opponents:
-        #     Fight(player, opponent).start()
+        opponents = [fighter for fighter in self.gameboard.players_in_square(next_square)
+                     if fighter != current_player]
+        fight_results = [Fight(current_player, opponent).start() for opponent in opponents]
+        self.__ev_manager.post_event(PlayersFought(current_player, fight_results))
 
         # Perform action at square
         # destination.perform_action()

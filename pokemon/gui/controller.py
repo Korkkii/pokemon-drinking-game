@@ -17,7 +17,7 @@ from pokemon.game_logic.player import Player
 from pokemon.game_logic.pokemon_character import Bulbasaur, Charmander, Squirtle
 from pokemon.gui.camera import Camera, FollowFocusCamera
 from pokemon.gui.constants import DIRECTIONS, GAMEBOARD, Direction, State
-from pokemon.gui.event import ChangeMusic, MoveCamera, PlayerMoved, QuitEvent, TickEvent, PlayTurn
+from pokemon.gui.event import ChangeMusic, MoveCamera, PlayerMoved, PlayersFought, QuitEvent, TickEvent, PlayTurn
 from pokemon.gui.sprites import BackgroundEntity, CameraFocus, FrameEntity, PlayerSprite
 
 
@@ -101,6 +101,10 @@ class ViewController(EventReceiver):
             player_sprite = self.player_sprites[event.player]
             for target in movement_targets:
                 player_sprite.move_to_target(*target)
+        elif isinstance(event, PlayersFought):
+            results = event.results
+            for result in results:
+                print(result)
 
             # self.player_sprites[event.player].move_to_target(*target_coordinate)
             # self.player.rect = Rect(event.target_coordinate, self.player.rect.size)

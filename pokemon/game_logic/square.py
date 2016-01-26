@@ -31,7 +31,10 @@ class Square:
         raise NotImplementedError
 
     def __eq__(self, other):
-        return self.number == other.number and type(self) is type(other)
+        return self.__number == other.number and type(self) is type(other)
+
+    def __str__(self):
+        return "{} at {}".format(self.__class__.__name__, self.__number)
 
 
 class GymSquare(Square, metaclass=ABCMeta):

@@ -66,8 +66,7 @@ class FightResults:
         """
         self.__draw = None
         self.__draw_throw = None
-        print(player1_throws)
-        print(player2_throws)
+
         if max(player1_throws) > max(player2_throws):
             self.__winner = player1
             self.__winner_throws = player1_throws
@@ -82,7 +81,7 @@ class FightResults:
             self.__winner = None
             self.__loser = None
             self.__draw = player1, player2
-            self.__draw_throw = player1_throws
+            self.__draw_throw = max(player1_throws)
 
     @property
     def winner(self):
@@ -125,3 +124,10 @@ class FightResults:
         The throw that resulted in draw
         """
         return self.__draw_throw
+
+    def __str__(self):
+        if self.winner is not None:
+            return "Fight results: Winner {} with rolls of {}, Loser {} with rolls {}".format(
+                    self.__winner, self.__winner_throws, self.__loser, self.__loser_throws)
+        else:
+            return "Fight results: Tie between {} and {} with best rolls of {}".format(*self.__draw, self.__draw_throw)
