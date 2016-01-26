@@ -5,7 +5,7 @@ from pokemon.game_logic.throw import throw_dice
 from pokemon.gui.event import PlayerMoved
 from pokemon.gui.constants import Direction, DIRECTIONS, GAMEBOARD
 from pygame.math import Vector2
-from pokemon.game_logic.square import Square
+from pokemon.game_logic.square import GymSquare, Square
 
 
 class Game:
@@ -20,6 +20,10 @@ class Game:
             "R": Direction.RIGHT,
             "D": Direction.DOWN,
             "L": Direction.LEFT,
+            "GU": Direction.UP,
+            "GR": Direction.RIGHT,
+            "GD": Direction.DOWN,
+            "GL": Direction.LEFT,
             "N": Direction.STATIONARY
         }
 
@@ -48,7 +52,11 @@ class Game:
         index = 0
         while current_direction != Direction.STATIONARY and current_coordinate != finish:
             next_coordinate = current_coordinate + DIRECTIONS[current_direction]
-            self.board_squares.append(Square("", index))
+            x, y = current_coordinate
+            if GAMEBOARD[int(y)][int(x)].startswith("G"):
+                self.board_squares.append(GymSquare("", index))
+            else:
+                self.board_squares.append(Square("", index))
             self.game_coordinates.append(current_coordinate)
             # self.game_coordinates[index] = current_coordinate
             current_coordinate = next_coordinate
@@ -86,10 +94,9 @@ class Game:
         # destination.perform_action()
 
     def find_next_square(self, start, throw):
-
         current_square = start
         for square_num in range(start + 1, start + throw + 1):
             current_square = square_num
-            # if type(current) is GymSquare:
-            #     break
+            if type(self.board_squares[current_square]) is GymSquare:
+                return current_square
         return current_square
