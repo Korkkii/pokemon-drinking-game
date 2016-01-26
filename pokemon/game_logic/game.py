@@ -25,6 +25,10 @@ class Game:
             "GR": Direction.RIGHT,
             "GD": Direction.DOWN,
             "GL": Direction.LEFT,
+            "SU": Direction.UP,
+            "SR": Direction.RIGHT,
+            "SD": Direction.DOWN,
+            "SL": Direction.LEFT,
             "N": Direction.STATIONARY
         }
 
@@ -54,16 +58,18 @@ class Game:
         while current_direction != Direction.STATIONARY and current_coordinate != finish:
             next_coordinate = current_coordinate + DIRECTIONS[current_direction]
             x, y = current_coordinate
-            if GAMEBOARD[int(y)][int(x)].startswith("G"):
+            cell = GAMEBOARD[int(y)][int(x)]
+            if cell.startswith("G"):
                 self.board_squares.append(GymSquare("", index))
+            elif cell.startswith("S") and cell != "S":
+                self.board_squares.append(SpecialSquare("", index))
             else:
                 self.board_squares.append(Square("", index))
             self.game_coordinates.append(current_coordinate)
-            # self.game_coordinates[index] = current_coordinate
             current_coordinate = next_coordinate
             current_direction = squares[int(current_coordinate.y)][int(current_coordinate.x)]
             index += 1
-
+        self.last_square = index
         self.gameboard = GameBoard(self.board_squares, players)
 
     def get_player_square(self, player):
@@ -76,14 +82,15 @@ class Game:
     def play_next_turn(self):
         current_player = self.__players.next()
         player_location = self.gameboard[current_player]
-        # if type(player_location) is SpecialSquare:
-        #     player.location.perform_special_action(player)
+        if type(player_location) is SpecialSquare:
+            player_location.perform_special_action(current_player)
 
         # Throw dice, and advance amount of throws, or until a gym square
         throw = throw_dice()
 
         next_square = self.find_next_square(player_location.number, throw)
-        self.gameboard[current_player] = self.board_squares[next_square]
+        destination = self.board_squares[next_square]
+        self.gameboard[current_player] = destination
         self.__ev_manager.post_event(PlayerMoved(current_player, player_location.number, next_square))
 
         # Fight all players in the destination square
@@ -93,7 +100,7 @@ class Game:
         self.__ev_manager.post_event(PlayersFought(current_player, fight_results))
 
         # Perform action at square
-        # destination.perform_action()
+        destination.perform_action(current_player)
 
     def find_next_square(self, start, throw):
         current_square = start

@@ -24,3 +24,32 @@ Using command line and Python 3.
 $ cd path/to/pokemon-drinking-game
 $ python -m pokemon.main
 ```
+
+## TODO
+
+- [ ] Game Logic
+    - [x] Player
+    - [x] Pokemon types
+    - [x] Player battles
+    - [x] Gameboard
+    - [ ] Squares
+        - [ ] Implement different game squares
+- [ ] Graphical User Interface
+    - [x] Player sprite
+        - [x] Animated sprite
+        - [x] Movable player sprite
+        - [x] Multiple movable sprites
+    - [x] Gameboard
+        - [ ] Move players on the board
+    - [ ] Game status
+        - [ ] Score screen
+        - [ ] Fight results
+    - [ ] Game starter screen
+        - [ ] Add players with names and their pokemon
+- [ ] Integrate game logic with GUI
+    - [x] Player movement
+    - [x] Player battles
+    - [ ] Game status
+- [ ] Future plans
+    - [ ] Pokemon evolution
+    - [ ] Pokemon capturing
