@@ -1,11 +1,11 @@
 from pokemon.game_logic.player import Players, Player
-from pokemon.game_logic.pokemon_character import Squirtle
+from pokemon.game_logic.pokemon_character import Bulbasaur, Charmander, Squirtle
 
 
 def test_current_player():
     player1 = Player("tester1", Squirtle())
-    player2 = Player("tester2", Squirtle())
-    player3 = Player("tester3", Squirtle())
+    player2 = Player("tester2", Charmander())
+    player3 = Player("tester3", Bulbasaur())
     players = Players([player1, player2, player3])
 
     assert players.current_player() == player1
@@ -19,8 +19,8 @@ def test_current_player():
 
 def test_next_player():
     player1 = Player("tester1", Squirtle())
-    player2 = Player("tester2", Squirtle())
-    player3 = Player("tester3", Squirtle())
+    player2 = Player("tester2", Charmander())
+    player3 = Player("tester3", Bulbasaur())
     players = Players([player1, player2, player3])
 
     assert players.current_player() == player1

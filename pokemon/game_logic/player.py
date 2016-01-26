@@ -120,3 +120,6 @@ class Players:
             return next_player
         else:
             return self.__players[0]
+
+    def __str__(self):
+        return [player.__str__() for player in self.__players].__str__()

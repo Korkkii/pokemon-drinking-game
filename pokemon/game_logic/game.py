@@ -71,11 +71,11 @@ class Game:
         #     player.location.perform_special_action(player)
 
         # Throw dice, and advance amount of throws, or until a gym square
-        throw = 1  # throw_dice()
+        throw = throw_dice()
 
         next_square = self.find_next_square(player_location.number, throw)
         self.gameboard[current_player] = self.board_squares[next_square]
-        self.__ev_manager.post_event(PlayerMoved(current_player, next_square))
+        self.__ev_manager.post_event(PlayerMoved(current_player, player_location.number, next_square))
 
         # Fight all players in the destination square
         # opponents = (fighter for fighter in self.__board.players_in_square(current) if fighter is not player)
@@ -86,8 +86,9 @@ class Game:
         # destination.perform_action()
 
     def find_next_square(self, start, throw):
+
         current_square = start
-        for square_num in range(start, start + throw + 1):
+        for square_num in range(start + 1, start + throw + 1):
             current_square = square_num
             # if type(current) is GymSquare:
             #     break

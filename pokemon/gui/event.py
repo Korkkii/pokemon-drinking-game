@@ -54,9 +54,10 @@ class ChangeMusic(Event):
 
 
 class PlayerMoved(Event):
-    def __init__(self, player, square_num):
+    def __init__(self, player, from_square, to_square):
         self.player = player
-        self.square_num = square_num
+        self.from_square = from_square
+        self.to_square = to_square
 
 
 class PlayTurn(Event):

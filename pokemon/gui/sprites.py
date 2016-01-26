@@ -12,10 +12,16 @@ from pokemon.gui.constants import DIRECTIONS, Direction, State
 
 
 class Entity(Sprite):
+    counter = 0
 
     def __init__(self, x, y, width, height):
+        Entity.counter += 1
+        self.id = Entity.counter
         Sprite.__init__(self)
         self.rect = Rect(x, y, width, height)
+
+    def __str__(self):
+        return "ID: {}, {}".format(self.id, self.rect)
 
 
 class BackgroundEntity(Entity):
@@ -48,9 +54,6 @@ class MovingSprite(Entity):
         """
         # Sprite state
         speed = 5
-        facing_direction = Direction.DOWN
-        state = State.STATIONARY
-        targets = deque()  # Target queue
 
         def __init__(self, x, y, width, height):
             super(MovingSprite, self).__init__(x, y, width, height)
@@ -59,6 +62,9 @@ class MovingSprite(Entity):
             self.rect = Rect(center_coords, self.rect.size)
             # Set current movement target equal to initial position
             self.target = vec2(self.rect.centerx, self.rect.centery)
+            self.targets = deque()  # Target queue
+            self.facing_direction = Direction.DOWN
+            self.state = State.STATIONARY
 
         def move_to_target(self, x, y):
             """
@@ -76,6 +82,7 @@ class MovingSprite(Entity):
                 self.targets.append(vec2(x, y))
 
         def get_facing(self, x, y):
+            # TODO: If target diagonally away, do something
             if x > self.target.x:
                 return Direction.RIGHT
             elif x < self.target.x:
@@ -97,7 +104,7 @@ class MovingSprite(Entity):
                 velocity = DIRECTIONS[self.facing_direction] * self.speed
                 new_position = current_position + velocity
                 target_position = self.target
-                print(current_position, velocity, new_position, target_position, self.targets)
+
                 # Calculate velocity to just reach the target, not go over
                 if (current_position.x < target_position.x < new_position.x or
                    new_position.x < target_position.x < current_position.x):
@@ -132,13 +139,14 @@ class MovingSprite(Entity):
                     self.target = next_target
                 # No target, stay still
                 else:
-                    self.state = State.STATIONARY
+                    if self.state != State.STATIONARY:
+                        self.state = State.STATIONARY
                     return
-            if self.state != State.MOVING:
+            else:
                 self.state = State.MOVING
 
-            velocity = self.calculate_movement()
-            self.rect.move_ip(*velocity)
+                velocity = self.calculate_movement()
+                self.rect.move_ip(*velocity)
 
 
 class PlayerSprite(MovingSprite):
@@ -164,10 +172,9 @@ class PlayerSprite(MovingSprite):
         sprite_sheet = pygame.image.load(os.path.join(directory, "assets/player_sprite.png")).convert_alpha()
 
         self.sprites = self.get_player_sprites(sprite_sheet)
-
-        self.image = self.sprites[self.facing_direction][-1]  # Select stationary image
         sprite_size = (self.sprite_width * self.scale_factor, self.sprite_height * self.scale_factor)
         super(PlayerSprite, self).__init__(x, y, *sprite_size)
+        self.image = self.sprites[self.facing_direction][-1]  # Select stationary image
 
     def get_player_sprites(self, sprite_sheet):
         """Creates a dict containing all player sprites with grouped by facing. Not generally applicable."""

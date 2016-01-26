@@ -41,7 +41,7 @@ class PlayerSpriteTest(TestCase):
         self.assertEqual(self.sprite.calculate_movement(), Vector2(0, 0))
 
     def test_calculate_movement_move_whole_velocity(self):
-        directions = [Vector2(20, 0), Vector2(-20, 0), Vector2(0, -20), Vector2(0, 20)]
+        directions = [Vector2(10, 0), Vector2(-10, 0), Vector2(0, -10), Vector2(0, 10)]
         for direction in directions:
             self.sprite = MovingSprite(50, 50, 10, 10)
             self.sprite.move_to_target(self.sprite.rect.centerx + direction.x, self.sprite.rect.centery + direction.y)

@@ -37,6 +37,8 @@ class ViewController(EventReceiver):
 
     # Size of one square on board in pixels
     board_rect_size = (186, 186)
+    board_rect_space = (2, 2)
+    board_frame = (4, 4)
 
     def __init__(self, evManager):
         self.__evManager = evManager
@@ -66,6 +68,11 @@ class ViewController(EventReceiver):
             self.entities.update()
             # Draw moving objects
             self.window.blit(self.bg_ent.image, self.camera.apply(self.bg_ent))
+            # for j in range(0, 9):
+            #     for i in range(0, 9):
+            #         if ((9 * j + i) < 70):
+            #             loc = self.from_game_coord_to_pixel(9 * j + i)
+            #             pygame.draw.rect(self.window, pygame.Color(255, 0, 0, 0), Rect(loc, self.board_rect_size), 1)
 
             # Draw stationary parts on top
             # TODO: Find way to keep stationary from unnecessary redrawing
@@ -89,13 +96,17 @@ class ViewController(EventReceiver):
             self.update_game()
         # Move player
         elif isinstance(event, PlayerMoved):
-            target_coordinate = self.from_game_coord_to_pixel(event.square_num)
-            self.player_sprites[event.player].move_to_target(*target_coordinate)
+            movement_targets = [self.from_game_coord_to_pixel(square_num) for square_num in range(event.from_square + 1,
+                                                                                                  event.to_square + 1)]
+            player_sprite = self.player_sprites[event.player]
+            for target in movement_targets:
+                player_sprite.move_to_target(*target)
+
+            # self.player_sprites[event.player].move_to_target(*target_coordinate)
             # self.player.rect = Rect(event.target_coordinate, self.player.rect.size)
 
     def init_game(self):
-        self.player = Player("", Charmander())
-        self.players = [self.player]
+        self.players = [Player("tester1", Charmander()), Player("tester2", Bulbasaur()), Player("tester2", Squirtle())]
         self.game = Game(self.players, self.__evManager)
         self.player_sprites = {}
 
@@ -111,7 +122,9 @@ class ViewController(EventReceiver):
     def from_game_coord_to_pixel(self, square_num):
         w, h = self.board_rect_size
         x, y = self.game.game_coordinates[square_num]
-        return ((x + 0.5) * w, (y + 0.5) * h)
+        return (self.board_frame[0] + (x + 0.5) * (w + self.board_rect_space[0]),
+                self.board_frame[1] + (y + 0.5) * (h + self.board_rect_space[1]))
+        # return ((x + 0.5) * w, (y + 0.5) * h)
 
 
 class SoundController(EventReceiver):
@@ -125,7 +138,7 @@ class SoundController(EventReceiver):
         self.mixer.init()
         f = os.path.join(self.base, "assets/pokemon_pallet_town.mp3")
         self.mixer.music.load(f)
-        self.mixer.music.play(0)
+        # self.mixer.music.play(0)
 
     def notify(self, event):
         if isinstance(event, ChangeMusic):
