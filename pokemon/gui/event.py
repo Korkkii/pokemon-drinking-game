@@ -5,6 +5,8 @@ class Event:
     """
     A superclass for all events that can be sent to EventManager
     """
+    def __str__(self):
+        return self.__class__.__name__
 
 
 class EventManager:
@@ -69,3 +71,15 @@ class PlayersFought(Event):
     def __init__(self, player, results):
         self.player = player
         self.results = results
+
+
+class OtherPlayersRequired(Event):
+    def __init__(self, players_required, for_square):
+        self.players_required = players_required
+        self.square_num = for_square
+
+
+class OtherPlayers(Event):
+    def __init__(self, players_required, for_square):
+        self.players_required = players_required
+        self.square_num = for_square

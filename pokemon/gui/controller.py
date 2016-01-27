@@ -17,7 +17,8 @@ from pokemon.game_logic.player import Player
 from pokemon.game_logic.pokemon_character import Bulbasaur, Charmander, Squirtle
 from pokemon.gui.camera import Camera, FollowFocusCamera
 from pokemon.gui.constants import DIRECTIONS, GAMEBOARD, Direction, State
-from pokemon.gui.event import ChangeMusic, MoveCamera, PlayerMoved, PlayersFought, QuitEvent, TickEvent, PlayTurn
+from pokemon.gui.event import (ChangeMusic, MoveCamera, PlayerMoved, PlayersFought, QuitEvent, TickEvent, PlayTurn,
+                               OtherPlayersRequired, OtherPlayers)
 from pokemon.gui.sprites import BackgroundEntity, CameraFocus, FrameEntity, PlayerSprite
 
 
@@ -105,12 +106,15 @@ class ViewController(EventReceiver):
             results = event.results
             for result in results:
                 print(result)
+        elif isinstance(event, OtherPlayersRequired):
+            required = [player for player in self.players if player != self.game.current_player]
+            self.__evManager.post_event(OtherPlayers(required[0:event.players_required], event.square_num))
 
             # self.player_sprites[event.player].move_to_target(*target_coordinate)
             # self.player.rect = Rect(event.target_coordinate, self.player.rect.size)
 
     def init_game(self):
-        self.players = [Player("tester1", Charmander()), Player("tester2", Bulbasaur()), Player("tester2", Squirtle())]
+        self.players = [Player("tester1", Charmander()), Player("tester2", Bulbasaur()), Player("tester3", Squirtle())]
         self.game = Game(self.players, self.__evManager)
         self.player_sprites = {}
 
@@ -181,6 +185,7 @@ class KeyboardController(EventReceiver):
                 self.evManager.post_event(MoveCamera(Direction.LEFT))
             if keys_pressed[K_p]:
                 self.evManager.post_event(ChangeMusic())
+            pygame.event.pump()
 
 
 class CPUController(EventReceiver):

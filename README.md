@@ -32,15 +32,22 @@ $ python -m pokemon.main
     - [x] Pokemon types
     - [x] Player battles
     - [x] Gameboard
-    - [ ] Squares
-        - [ ] Implement different game squares
+    - [ ] Square mechanics
+        - [x] Drink
+        - [x] Gain turn
+        - [ ] Lose turn
+        - [ ] Replace pokemon
+        - [ ] Teleport
+        - [x] Require other players
+    - [ ] Status ailments
+        - [x] Turn gain / lose
 - [ ] Graphical User Interface
     - [x] Player sprite
         - [x] Animated sprite
         - [x] Movable player sprite
         - [x] Multiple movable sprites
     - [x] Gameboard
-        - [ ] Move players on the board
+        - [x] Move players on the board
     - [ ] Game status
         - [ ] Score screen
         - [ ] Fight results

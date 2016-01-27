@@ -8,6 +8,7 @@ class Player:
         self.__pokemon = pokemon
         self.__drinks = []
         self.__fossil = None
+        self.__status_ailments = []
 
     @property
     def name(self):
@@ -15,6 +16,20 @@ class Player:
         Name of the player
         """
         return self.__name
+
+    @property
+    def status(self):
+        """
+        Player's current status ailments
+        """
+        return self.__status_ailments
+
+    def update_status(self):
+        """Update player's status ailments and remove expired ailments."""
+        for status in self.__status_ailments:
+            status.update()
+            if status.duration == 0:
+                self.__status_ailments.remove(status)
 
     @property
     def drinks(self):
@@ -120,6 +135,11 @@ class Players:
             return next_player
         else:
             return self.__players[0]
+
+    def give_extra_turn(self):
+        if len(self.__players) > 1:
+            *init, last = self.__players
+            self.__players = [last] + init
 
     def __str__(self):
         return [player.__str__() for player in self.__players].__str__()
