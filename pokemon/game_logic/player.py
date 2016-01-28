@@ -1,12 +1,17 @@
+from pokemon.gui.constants import Sex
+
+
 class Player:
     """
     A player in the game.
     """
 
-    def __init__(self, name, pokemon):
+    def __init__(self, name, pokemon, age, sex=Sex.MALE):
         self.__name = name
         self.__pokemon = pokemon
         self.__drinks = []
+        self.age = age
+        self.sex = sex
         self.__fossil = None
         self.__status_ailments = []
 
@@ -36,7 +41,7 @@ class Player:
         """
         Amount of drink events player has had in the game
         """
-        return self.__drinks
+        return sum([drink.number for drink in self.__drinks])
 
     @property
     def pokemon(self):
@@ -47,6 +52,7 @@ class Player:
 
     @pokemon.setter
     def pokemon(self, pokemon):
+        print("Changing {}'s pokemon from {} to {}".format(self.name, self.pokemon, pokemon))
         self.__pokemon = pokemon
 
     @property
@@ -140,6 +146,10 @@ class Players:
         if len(self.__players) > 1:
             *init, last = self.__players
             self.__players = [last] + init
+
+    def other_than(self, excluded_player):
+        """Players other than the given one."""
+        return [player for player in self.__players if player != excluded_player]
 
     def __str__(self):
         return [player.__str__() for player in self.__players].__str__()

@@ -19,6 +19,11 @@ class State(Enum):
     MOVING = 1
 
 
+class Sex(Enum):
+    MALE = 1
+    FEMALE = 2
+
+
 DIRECTIONS = {
     Direction.UP: Vector2(0, -1),
     Direction.RIGHT: Vector2(1, 0),

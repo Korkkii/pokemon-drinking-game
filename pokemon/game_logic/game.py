@@ -7,9 +7,11 @@ from pokemon.gui.event import PlayerMoved, PlayersFought, OtherPlayersRequired, 
 from pokemon.gui.constants import Direction, DIRECTIONS, GAMEBOARD
 from pygame.math import Vector2
 from pokemon.game_logic.square import GymSquare, Square
-from pokemon.game_logic.squares import PidgeySquare
+from pokemon.game_logic.squares import ClefairySquare
 from concurrent.futures import ThreadPoolExecutor
-from pokemon.game_logic.status_effects import GainTurn
+from pokemon.game_logic.status_effects import GainTurn, SlowMovement, Confusion, LoseTurn, IncreaseMovement
+from math import ceil
+from pokemon.game_logic.square_mixins import RequireEverybodyExceptCurrentMixin, RequireAllMixin
 
 
 class Game:
@@ -69,7 +71,7 @@ class Game:
             elif cell.startswith("S") and cell != "S":
                 self.board_squares.append(SpecialSquare("", index))
             else:
-                self.board_squares.append(PidgeySquare("", index))
+                self.board_squares.append(Square("", index))
             self.game_coordinates.append(current_coordinate)
             current_coordinate = next_coordinate
             current_direction = squares[int(current_coordinate.y)][int(current_coordinate.x)]
@@ -89,40 +91,34 @@ class Game:
         current_player = self.__players.next()
         player_location = self.gameboard[current_player]
 
+        # Check if misses turn
+        if self.check_miss_turn(current_player):
+            current_player.update_status()
+            return
+
         # Perform special action if on a special square
         try:
             player_location.perform_special_action(current_player)
         except AttributeError:
             pass
 
-        # Throw dice, and advance amount of throws, or until a gym square
-        throw = throw_dice()
-
-        next_square = self.find_next_square(player_location.number, throw)
-        destination = self.board_squares[next_square]
+        destination, throw = self.throw_dice_and_move(current_player, player_location)
         self.gameboard[current_player] = destination
-        self.__ev_manager.post_event(PlayerMoved(current_player, player_location.number, next_square))
+        self.__ev_manager.post_event(PlayerMoved(current_player, player_location.number, destination.number))
 
         # Fight all players in the destination square
-        opponents = [fighter for fighter in self.gameboard.players_in_square(next_square)
+        opponents = [fighter for fighter in self.gameboard.players_in_square(destination.number)
                      if fighter != current_player]
         fight_results = [Fight(current_player, opponent).start() for opponent in opponents]
         self.__ev_manager.post_event(PlayersFought(current_player, fight_results))
 
-        # Get other players if needed in square action
-        try:
-            self.__ev_manager.post_event(OtherPlayersRequired(destination.other_players_required, next_square))
-
-            with ThreadPoolExecutor() as executor:
-                # Wait for players from user interaction
-                future_event = executor.submit(self.wait_for_event, next_square)
-                event = future_event.result(1)
-                destination.other_players = event.players_required
-        except (AttributeError, TimeoutError) as e:
-            pass
+        # If square action requires targeting others than current player
+        square_action_throw = throw_dice()
+        target_players = self.request_other_players(current_player, destination, square_action_throw)
 
         # Perform action at square
-        destination.perform_action(current_player)
+        destination.perform_action(current_player, target_players, all_squares=self.board_squares,
+                                   throw=square_action_throw, gameboard=self.gameboard)
 
         # Give player an extra turn if gained one
         if any(isinstance(status, GainTurn) for status in current_player.status):
@@ -130,6 +126,73 @@ class Game:
 
         # Update player's status ailments
         current_player.update_status()
+
+    def check_miss_turn(self, current_player):
+        confusion = [status for status in current_player.status if isinstance(status, Confusion)]
+
+        # Check confusion status
+        if len(confusion) > 0:
+            if throw_dice() not in confusion[0].stop_confuse_range:
+                try:
+                    current_player.drink(confusion[0].drink_amount)
+                except AttributeError:
+                    pass
+                return True
+            else:
+                current_player.status.remove(confusion[0])
+                return False
+
+        # Check if player misses a turn
+        elif any(isinstance(status, LoseTurn) for status in current_player.status):
+            try:
+                lose_status = next(isinstance(status, LoseTurnAndDrink) for status in current_player.status)
+                current_player.drink(lose_status.drink_per_turn)
+            except AttributeError:
+                pass
+            return True
+        else:
+            return False
+
+    def throw_dice_and_move(self, current_player, current_location):
+        # Throw dice, and advance amount of throws, or until a gym square
+        throw = throw_dice()
+        # Halve movement if has status SLowMovement
+        if any(isinstance(status, SlowMovement) for status in current_player.status):
+            throw = ceil(throw / 2)
+        elif any(isinstance(status, IncreaseMovement) for status in current_player.status):
+            throw *= 2
+
+        next_square = self.find_next_square(current_location.number, throw)
+        destination = self.board_squares[next_square]
+        return (destination, throw)
+
+    def request_other_players(self, current_player, destination, throw):
+        """Request target players if needed in square action"""
+        # Check if all players required
+        if isinstance(destination, RequireAllMixin):
+            return self.players
+        else:
+            # Check if other players are required based on throw
+            try:
+                if not destination.require_other_based_on_throw(throw):
+                    return []
+            except AttributeError:
+                pass
+
+        # Request users to choose targets
+        try:
+            self.__ev_manager.post_event(OtherPlayersRequired(destination.other_players_required, destination.number))
+
+            with ThreadPoolExecutor() as executor:
+                # Wait for players from user interaction
+                future_event = executor.submit(self.wait_for_event, destination.number)
+                event = future_event.result()
+                return event.players_required
+        except (AttributeError, TimeoutError) as e:
+            # Does not need specific targets
+            # Check if needs all others
+            if isinstance(destination, RequireEverybodyExceptCurrentMixin):
+                return self.__players.other_than(current_player)
 
     def wait_for_event(self, square_num):
         while True:

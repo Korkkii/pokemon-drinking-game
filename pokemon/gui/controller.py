@@ -114,7 +114,8 @@ class ViewController(EventReceiver):
             # self.player.rect = Rect(event.target_coordinate, self.player.rect.size)
 
     def init_game(self):
-        self.players = [Player("tester1", Charmander()), Player("tester2", Bulbasaur()), Player("tester3", Squirtle())]
+        self.players = [Player("tester1", Charmander(), 10), Player("tester2", Bulbasaur(), 10),
+                        Player("tester3", Squirtle(), 10)]
         self.game = Game(self.players, self.__evManager)
         self.player_sprites = {}
 

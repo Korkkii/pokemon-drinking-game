@@ -23,7 +23,7 @@ class Square:
         """
         return self.__number
 
-    def perform_action(self, player):
+    def perform_action(self, player, *args, **kwargs):
         """
         Abstract method for generic action to be performed after landing on a square
         """
@@ -51,7 +51,7 @@ class SpecialSquare(Square):
     def __init__(self, desc, number):
         super(SpecialSquare, self).__init__(desc, number)
 
-    def perform_special_action(self, player):
+    def perform_special_action(self, player, *args, **kwargs):
         """
         Method performed in the beginning of each player turn starting from this square
         """
