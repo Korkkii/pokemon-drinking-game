@@ -2,9 +2,10 @@
 
 ## What is this
 
-A personal project on learning basics of game and game engine development using Python 3 and PyGame. My main focus in this project is to learn what kinds of design patterns are used in development of games and game engines, and how they affect the quality of the code.
+A personal project on learning basics of game and game engine development using Python 3 and PyGame. My main focus in this project is to learn what kinds of design patterns are used in development of games and game engines, and how they affect the quality of the code. Currently work in progress.
 
 Materials used in learning process include:
+
 1. [Gaming Programming Patterns by Robert Nystrom](http://gameprogrammingpatterns.com/)
 2. [Writing Games by Shandy Brown](http://ezide.com/games/writing-games.html)
 
@@ -25,6 +26,8 @@ $ cd path/to/pokemon-drinking-game
 $ python -m pokemon.main
 ```
 
+Currently the turns are played by pressing "k", although it does not do much yet except move the characters across the screen.
+
 ## TODO
 
 - [ ] Game Logic
@@ -32,15 +35,9 @@ $ python -m pokemon.main
     - [x] Pokemon types
     - [x] Player battles
     - [x] Gameboard
-    - [ ] Square mechanics
-        - [x] Drink
-        - [x] Gain turn
-        - [ ] Lose turn
-        - [ ] Replace pokemon
-        - [ ] Teleport
-        - [x] Require other players
+    - [ ] Square implementations
+        - [ ] Integration with Game controller
     - [ ] Status ailments
-        - [x] Turn gain / lose
 - [ ] Graphical User Interface
     - [x] Player sprite
         - [x] Animated sprite
@@ -55,7 +52,9 @@ $ python -m pokemon.main
         - [ ] Add players with names and their pokemon
 - [ ] Integrate game logic with GUI
     - [x] Player movement
-    - [x] Player battles
+    - [ ] Player battles
+        - [x] Battle information posted to console
+        - [ ] Battle information posted to screen
     - [ ] Game status
 - [ ] Future plans
     - [ ] Pokemon evolution
